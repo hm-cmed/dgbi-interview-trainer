@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DGBI 面接トレーナー（自己採点版）| Brain–Gut Communication Self-Trainer</title>
+<style>
+  :root{
+    --ink:#12262b;          /* deep teal-ink for text */
+    --ink-soft:#3f5860;
+    --paper:#f6f8f7;        /* very pale cool */
+    --panel:#ffffff;
+    --line:#d5e0dd;
+    --teal:#0f766e;         /* primary clinical teal */
+    --teal-deep:#0b5a54;
+    --teal-wash:#e6f1ef;
+    --amber:#c2621a;        /* warmth / trust-rising accent, used sparingly */
+    --amber-wash:#f7ece1;
+    --good:#3f7d54;
+    --good-wash:#e6f0e8;
+    --warn:#a6531f;
+    --shadow:0 1px 0 var(--line);
+    --r:10px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.7;font-size:16px;
+  }
+  h1,h2,h3{font-family:"Hiragino Mincho ProN","Yu Mincho",Georgia,serif;font-weight:600;letter-spacing:.01em;color:var(--ink)}
+  a{color:var(--teal-deep)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px}
+
+  /* header / hero */
+  header{background:linear-gradient(180deg,#0e3a37 0%, #12494a 100%);color:#eef6f4}
+  header .wrap{padding:38px 20px 30px}
+  header h1{color:#fff;font-size:30px;margin:0 0 6px;line-height:1.3}
+  header .sub{color:#bcd8d3;font-size:15px;margin:0 0 20px}
+  .hero-line{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end}
+  .hero-stat{display:flex;flex-direction:column}
+  .hero-stat b{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:26px;color:#fff;line-height:1}
+  .hero-stat span{font-size:12.5px;color:#a7ccc6;margin-top:5px}
+  .hero-note{color:#cfe6e2;font-size:13.5px;margin-top:18px;max-width:60ch}
+  .badge-offline{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+    color:#dff0ed;font-size:12px;padding:3px 10px;border-radius:999px;margin-bottom:14px}
+
+  /* nav */
+  nav.cases{position:sticky;top:0;z-index:20;background:rgba(246,248,247,.94);
+    backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  nav.cases .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 20px}
+  nav.cases button{white-space:nowrap;border:1px solid var(--line);background:var(--panel);
+    color:var(--ink-soft);padding:7px 13px;border-radius:999px;font-size:13.5px;cursor:pointer;font-family:inherit}
+  nav.cases button.active{background:var(--teal);border-color:var(--teal);color:#fff}
+  nav.cases button:hover:not(.active){border-color:var(--teal)}
+
+  main{padding:26px 0 70px}
+  section.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:22px 24px;margin:0 0 18px}
+  .eyebrow{font-size:12.5px;color:var(--teal-deep);font-weight:700;margin:0 0 4px}
+  h2{font-size:21px;margin:0 0 4px}
+  .case-meta{font-size:13.5px;color:var(--ink-soft);margin:8px 0 0}
+  .case-meta strong{color:var(--ink)}
+
+  /* patient card */
+  .patient{background:var(--teal-wash);border:1px solid #c7dedb;border-radius:var(--r);padding:16px 18px;margin:16px 0}
+  .patient .who{font-size:14px;color:var(--ink-soft);margin:0 0 8px}
+  .patient .say{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:17px;color:var(--ink);margin:0}
+  .patient .say::before{content:"\201C";color:var(--teal);font-size:22px;vertical-align:-3px;margin-right:2px}
+  .patient .say::after{content:"\201D";color:var(--teal);font-size:22px;vertical-align:-6px;margin-left:1px}
+
+  /* two-column model lines */
+  .lines{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}
+  @media(max-width:640px){.lines{grid-template-columns:1fr}}
+  .line{border:1px solid var(--line);border-radius:8px;padding:12px 13px;font-size:14px}
+  .line .tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block;margin-bottom:6px}
+  .line.bad .tag{background:var(--amber-wash);color:var(--warn)}
+  .line.good .tag{background:var(--good-wash);color:var(--good)}
+  .line p{margin:0;color:var(--ink)}
+
+  /* checklist */
+  h3.sec{font-size:16px;margin:22px 0 6px;padding-top:4px}
+  .hint{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
+  .checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .checks li{border:1px solid var(--line);border-radius:8px;padding:2px}
+  .checks label{display:flex;gap:11px;align-items:flex-start;padding:11px 12px;cursor:pointer}
+  .checks input{margin-top:3px;width:17px;height:17px;accent-color:var(--teal);flex:0 0 auto}
+  .checks .ct{font-size:14.5px}
+  .checks .ck{font-size:12px;color:var(--teal-deep);font-weight:700;margin-right:6px}
+  .checks .neg .ck{color:var(--warn)}
+  .checks li.on{border-color:var(--teal);background:var(--teal-wash)}
+  .checks li.on.neg{border-color:#d9b48f;background:var(--amber-wash)}
+
+  /* result */
+  .result{margin-top:20px;border-top:1px dashed var(--line);padding-top:18px}
+  .trustbar-wrap{margin:6px 0 16px}
+  .trustbar-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px}
+  .trustbar{height:14px;background:#e9efed;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .trustfill{height:100%;width:0;border-radius:999px;
+    background:linear-gradient(90deg,var(--teal) 0%, var(--teal) 55%, var(--amber) 100%);
+    transition:width .5s cubic-bezier(.2,.7,.2,1)}
+  .lv{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .lv-chip{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:30px;font-weight:600;
+    background:var(--teal);color:#fff;width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .lv-chip.pass{background:var(--good)}
+  .lv-chip.low{background:var(--warn)}
+  .lv-text b{font-size:15.5px}
+  .lv-text p{margin:3px 0 0;font-size:13.5px;color:var(--ink-soft)}
+  .lv-next{margin-top:14px;background:var(--amber-wash);border:1px solid #e4cbac;border-radius:8px;padding:12px 14px;font-size:14px}
+  .lv-next b{color:var(--warn)}
+
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button.act{font-family:inherit;font-size:14px;border-radius:8px;padding:10px 16px;cursor:pointer;border:1px solid var(--teal);background:var(--teal);color:#fff}
+  button.act.ghost{background:transparent;color:var(--teal-deep)}
+  button.act:hover{background:var(--teal-deep);border-color:var(--teal-deep);color:#fff}
+
+  details.more{margin-top:14px;border:1px solid var(--line);border-radius:8px;padding:0 14px}
+  details.more summary{cursor:pointer;padding:12px 0;font-size:14px;color:var(--teal-deep);font-weight:600}
+  details.more[open] summary{border-bottom:1px solid var(--line)}
+  details.more .body{padding:12px 0 16px;font-size:14px}
+  details.more .body ul{margin:6px 0;padding-left:20px}
+
+  /* progress dashboard */
+  .dash{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+  @media(max-width:640px){.dash{grid-template-columns:repeat(2,1fr)}}
+  .dcell{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+  .dcell .cid{font-size:12px;color:var(--ink-soft)}
+  .dcell .dl{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:22px;margin-top:2px}
+  .dcell.done{background:var(--good-wash);border-color:#bcd6c3}
+  .dcell.done .dl{color:var(--good)}
+
+  footer{border-top:1px solid var(--line);padding:24px 0 60px;color:var(--ink-soft);font-size:12.5px}
+  footer .wrap{display:flex;flex-direction:column;gap:6px}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#eef3f1;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12px}
+  .en{color:var(--ink-soft);font-size:12.5px;font-style:italic}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <span class="badge-offline">オフライン教材・API 不要 / No API, fully offline</span>
+    <h1>DGBI 面接トレーナー</h1>
+    <p class="sub">脳腸相関障害の患者との対話を、台本と自己採点で練習する — Brain–Gut Communication Self-Trainer</p>
+    <div class="hero-line">
+      <div class="hero-stat"><b id="heroDone">0/5</b><span>修了ケース / cases done</span></div>
+      <div class="hero-stat"><b>4</b><span>コミュニケーション原則 / principles</span></div>
+      <div class="hero-stat"><b>Lv3</b><span>達成基準 / pass standard</span></div>
+    </div>
+    <p class="hero-note">各ケースで患者の発話を読み、自分ならどう応じるかを考えてから、実際に満たせた行動をチェックします。満たした原則に応じて信頼度（trust）が動き、MILESTONE の到達レベルが表示されます。AI との対話版は Google AI Studio で別途利用してください。</p>
+  </div>
+</header>
+
+<nav class="cases"><div class="wrap" id="caseNav"></div></nav>
+
+<main><div class="wrap">
+  <section class="panel" id="caseArea"></section>
+
+  <section class="panel">
+    <p class="eyebrow">進捗 / Progress</p>
+    <h2>ケース別 到達レベル</h2>
+    <p class="hint">自己採点の結果はこの端末に保存されます（localStorage）。<button class="act ghost" id="resetAll" style="padding:4px 10px;font-size:12.5px;margin-left:6px">すべて消去</button></p>
+    <div class="dash" id="dash"></div>
+  </section>
+</div></main>
+
+<footer><div class="wrap">
+  <div>DGBI 精神療法オンデマンド訓練プログラム — 第二層／第三層のオフライン自己採点版。Rome V "Level 1 psychosocial care" に準拠。</div>
+  <div class="en">Self-scored offline edition. The AI-dialogue version runs separately on Google AI Studio. No data leaves your browser.</div>
+  <div>札幌医科大学 医療者教育開発研究部門 / Sapporo Medical University — Center for Medical Education</div>
+</div></footer>
+
+<script>
+/* ---------- data: cases, principles, rubric ---------- */
+const PRINCIPLES = [
+  {id:"AL", w:8,  label:"能動的傾聴", en:"active listening",
+   desc:"遮らずに聴き、患者が今言ったことを受けて次の質問を組み立てた。"},
+  {id:"AG", w:6,  label:"関心事の引き出し", en:"agenda eliciting",
+   desc:"「今日、一番気がかりなことは何ですか」等で患者の懸念・恐怖を引き出した。"},
+  {id:"NB", w:6,  label:"非難しない説明・陽性的診断", en:"non-blaming education",
+   desc:"脳腸モデルで機序を平易に説明し、除外ではなく『実在する状態』として診断を伝えた。"},
+  {id:"SE", w:6,  label:"自己効力感の促進", en:"self-efficacy",
+   desc:"「どう対処していますか」等、患者自身の主体性・対処を引き出した。"},
+];
+const NEG = {id:"NEG", w:-10, label:"遮り・断定・非難・検査の押し付け", en:"interruption / blame",
+   desc:"患者を遮る／『異常なし』で片付ける／共感なく検査を重ねる、が一度でもあった。"};
+
+/* each case: initial trust, and case-specific driver note + model lines */
+const CASES = [
+  {id:"C1", title:"IBS 初診・不信感の強い患者", en:"First-visit IBS, deeply mistrustful",
+   focus:"陽性的診断 ＋ 能動的傾聴", los:"LO2（中核）・LO3", init:15,
+   who:"32歳・会社員。8か月続く下腹部痛と便通異常。3施設で『異常なし』と言われ、今日もまた軽くあしらわれると身構えている。",
+   say:"……今日はお腹のことで来ました。でも、たぶんまた『異常なし』って言われるんですよね。もう何件も回ったので。",
+   key:"鍵：ここでは『IBS は実在する、名前のついた状態です』と自信を持って陽性的に診断を伝えられるかが最大の転換点。",
+   bad:"検査はすべて正常でした。特に大きな病気はないので、様子を見ましょう。",
+   good:"つらい状態が8か月も続いているんですね。まず伺いたいのですが、今いちばん困っているのはどの症状ですか。……お話を伺う限り、これは過敏性腸症候群という、はっきりとした実在の状態だと考えます。"},
+
+  {id:"C2", title:"FD・薬に抵抗、脳腸相関の説明が鍵", en:"FD, resistant to medication",
+   focus:"脳腸相関の心理教育", los:"LO4（中核）・LO1", init:30,
+   who:"45歳。内視鏡は正常で機能性ディスペプシアと説明された。『異常がないのに、なぜ薬が要るのか』と服薬に抵抗している。",
+   say:"検査は異常なしって言われたんです。なのに、ずっと胃がつかえる感じで……。異常がないなら、どうして薬がいるんでしょうか？",
+   key:"鍵：脳と腸の双方向性を、専門用語でなく比喩で平易に説明できるか。患者が自分の言葉で機序を言い換えられたら転換成功。",
+   bad:"機能性ディスペプシアですね。とりあえず胃の動きをよくする薬を出しておきます。",
+   good:"検査で異常がないのは大事な情報です。実は胃腸の感じ方は脳と神経でつながっていて、その回路が過敏になると、傷がなくてもつらい症状が出ます。だから“気のせい”ではないんです。"},
+
+  {id:"C3", title:"神経修飾薬への stigma を持つ患者", en:"Stigma toward neuromodulators",
+   focus:"神経修飾薬の導入", los:"LO5（中核）・LO4", init:35,
+   who:"38歳。以前『抗うつ薬を』と言われ即座に断った。『抗うつ薬＝精神的に弱い・気のせい扱い』と感じている。",
+   say:"前の先生に『抗うつ薬を飲んでみたら』って言われて……正直、ちょっとショックでした。私、うつ病ってことなんですか？",
+   key:"鍵：『脳腸相関を調整して痛みを和らげる薬で、量も抗うつ用量とは違う』と、stigma を先回りして言語化できるか。",
+   bad:"これは抗うつ薬なんですが、効くので飲んでみてください。大丈夫、安全ですから。",
+   good:"驚かせてしまいましたね。この薬はうつの診断という意味ではなく、過敏になった脳腸の回路を落ち着かせて痛みを和らげる目的で、量もうつの治療とは異なります。心配な点から伺えますか。"},
+
+  {id:"C4", title:"難治・重複・抑うつ併存、紹介判断", en:"Refractory overlap with low mood",
+   focus:"紹介タイミングと集学的ケア", los:"LO6（中核）・LO7・LO3", init:40,
+   who:"50歳。IBS と FD が重複し数年難治。気分の落ち込み・不眠もあり QOL が大きく低下。『どうせまた回されるだけ』と疲弊。",
+   say:"もう何年もこの調子で、薬もいろいろ試したんですけど……正直、疲れました。先生に言っても、どうせまた別のところに回されるだけですよね。",
+   key:"鍵：紹介を『心の問題として送り出す』のではなく、自分が主治医として残りチームを“加える”形で提示できるか。",
+   bad:"これは心理的な要素が大きいので、心療内科に行ってもらえますか。そちらで診てもらってください。",
+   good:"長く続いてお疲れですよね。私が主治医として関わり続けたうえで、心理の専門家や管理栄養士にもチームに入ってもらう形を考えています。見捨てるという意味ではありません。今いちばん助けてほしいのはどこですか。"},
+
+  {id:"C5", title:"明確な診断を好む高齢患者（東アジア文脈）", en:"Older patient preferring authoritative clarity",
+   focus:"面接スタイルの文脈適応（Lv5 弁別）", los:"LO3（卓越）・LO4", init:45,
+   who:"70歳。慢性的な機能性ディスペプシア症状。医師の明確で自信ある判断を求める。曖昧な問い返しが続くと不安になる。",
+   say:"先生、私はどこが悪いんでしょうか。はっきり教えていただきたいんです。歳も歳ですし、ちゃんと知っておきたくて。",
+   key:"鍵：共感・傾聴だけでは足りない患者。温かさを保ったまま、明確で権威ある診断と方針を“加えられる”かが卓越（Lv5）の分かれ目。",
+   bad:"うーん、どうでしょうね。あなた自身はどう思われますか？ もう少し様子を見てみないと何とも……。",
+   good:"ご心配ですよね、はっきりお伝えします。これは機能性ディスペプシアという、命に関わらない、きちんと管理できる状態です。今日から次の方針で進めましょう。気になる点は遠慮なく仰ってください。"},
+];
+
+/* rubric mapping from covered principles + neg + trust reached */
+function scoreCase(c, covered, negOn){
+  let trust = c.init;
+  PRINCIPLES.forEach(p=>{ if(covered.has(p.id)) trust += p.w; });
+  if(negOn) trust += NEG.w;
+  trust = Math.max(0, Math.min(100, trust));
+  const nCore = PRINCIPLES.filter(p=>covered.has(p.id)).length;
+  const allFour = nCore===4;
+  let lv, stage, note, next;
+  if(negOn && nCore<=1){ lv=1; }
+  else if(nCore<=1){ lv=1; }
+  else if(nCore===2){ lv=2; }
+  else if(nCore>=3 && !allFour){ lv=3; }
+  else if(allFour && !negOn && trust<80){ lv=4; }
+  else { lv=5; }
+  // C5 special: needs all four AND high trust for Lv5; pure listening caps at 3-4
+  const map = {
+    1:{stage:"初学 Novice", note:"生物医学的側面のみ／遮りが残り、trust が上がっていません。", next:"まず遮らずに聴き、患者が今言ったことを受けて次の問いを立てる（AL）ことから。"},
+    2:{stage:"発展途上 Advanced beginner", note:"傾聴を試みていますが、原則の充足がまだ限定的で trust が伸び切りません。", next:"患者の一番の気がかりを引き出す問い（AG）を加える。"},
+    3:{stage:"適格 Competent（達成基準）", note:"遮らず聴き、関心事を引き出し、非難しない説明ができています。trust が中盤で明確に上昇。", next:"苦痛を明確に妥当化し、自己効力感を促す問い（SE）で希望側へ転換する。"},
+    4:{stage:"熟達 Proficient", note:"4原則を満たし、患者の物語が希望・主体性側へ動き始めています。", next:"パーソナリティや文脈に合わせてスタイルを調整し、難治例でも同盟を築く。"},
+    5:{stage:"卓越 Expert", note:"関係性そのものが治療手段として機能する水準です。", next:"この対話パターンを他ケース・実診療へ転移し、指導者として言語化する。"},
+  };
+  const info = map[lv];
+  return {trust, lv, stage:info.stage, note:info.note, next:info.next, pass: lv>=3};
+}
+
+/* ---------- state / storage ---------- */
+const KEY="dgbi_selftrainer_v1";
+function load(){ try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}} }
+function save(o){ localStorage.setItem(KEY, JSON.stringify(o)); }
+let store = load();
+let current = 0;
+
+/* ---------- render ---------- */
+const nav = document.getElementById("caseNav");
+CASES.forEach((c,i)=>{
+  const b=document.createElement("button");
+  b.textContent = c.id+"　"+c.title.split("・")[0];
+  b.onclick=()=>{current=i;renderCase();syncNav();window.scrollTo({top:0,behavior:"smooth"})};
+  nav.appendChild(b);
+});
+function syncNav(){ [...nav.children].forEach((b,i)=>b.classList.toggle("active",i===current)); }
+
+function renderCase(){
+  const c=CASES[current];
+  const saved = store[c.id]||{covered:[],neg:false,submitted:false};
+  const covered=new Set(saved.covered);
+  const area=document.getElementById("caseArea");
+  area.innerHTML="";
+
+  area.insertAdjacentHTML("beforeend",`
+    <p class="eyebrow">ケース ${c.id} / Case ${c.id}</p>
+    <h2>${c.title}</h2>
+    <p class="case-meta"><strong>訓練焦点：</strong>${c.focus}　　<strong>対応ルーブリック：</strong>${c.los}　　<strong>初期 trust：</strong>${c.init}</p>
+    <div class="patient">
+      <p class="who">${c.who}</p>
+      <p class="say">${c.say}</p>
+    </div>
+    <p class="hint">${c.key}</p>
+    <div class="lines">
+      <div class="line bad"><span class="tag">避けたい応答</span><p>${c.bad}</p></div>
+      <div class="line good"><span class="tag">目指す応答</span><p>${c.good}</p></div>
+    </div>
+
+    <h3 class="sec">自己採点：実際に満たせた行動をチェック</h3>
+    <p class="hint">模範を見る前に、まず自分ならどう返すかを声に出してから採点すると効果的です。</p>
+    <ul class="checks" id="checks"></ul>
+
+    <div class="result" id="result" style="display:none"></div>
+    <div class="btnrow">
+      <button class="act" id="scoreBtn">採点する</button>
+      <button class="act ghost" id="clearBtn">この課題をやり直す</button>
+    </div>
+
+    <details class="more">
+      <summary>この行動が効く理由（脳腸相関・Rome V）</summary>
+      <div class="body">
+        <ul>
+          <li>良好な医師-患者関係は Rome V で全医療者が担う基盤的「Level 1 psychosocial care」と定義されています。</li>
+          <li>共感的態度と安心付与は中枢の下行性変調系に作用し、恐怖・内臓過敏の知覚を直接和らげます。</li>
+          <li>除外診断（"異常なし"）ではなく確信ある陽性的診断が、不要な反復検査を防ぎ治療同盟の起点になります。</li>
+        </ul>
+      </div>
+    </details>
+  `);
+
+  // checklist
+  const ul=area.querySelector("#checks");
+  PRINCIPLES.forEach(p=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<label><input type="checkbox" value="${p.id}" ${covered.has(p.id)?"checked":""}>
+      <span class="ct"><span class="ck">${p.id}</span>${p.label}<span class="en"> / ${p.en}</span><br>${p.desc}</span></label>`;
+    ul.appendChild(li);
+  });
+  const negLi=document.createElement("li");
+  negLi.className="neg";
+  negLi.innerHTML=`<label><input type="checkbox" id="negChk" ${saved.neg?"checked":""}>
+    <span class="ct neg"><span class="ck">−</span>${NEG.label}<span class="en"> / ${NEG.en}</span><br>${NEG.desc}</span></label>`;
+  ul.appendChild(negLi);
+
+  function refreshRowStyles(){
+    ul.querySelectorAll("li").forEach(li=>{
+      const inp=li.querySelector("input");
+      li.classList.toggle("on", inp.checked);
+    });
+  }
+  refreshRowStyles();
+  ul.addEventListener("change",refreshRowStyles);
+
+  area.querySelector("#scoreBtn").onclick=()=>{
+    const covd=new Set([...ul.querySelectorAll('input[type=checkbox]:checked')]
+      .map(i=>i.value).filter(v=>v&&v!=="on"));
+    const negOn=area.querySelector("#negChk").checked;
+    const r=scoreCase(c,covd,negOn);
+    store[c.id]={covered:[...covd],neg:negOn,submitted:true,lv:r.lv};
+    save(store);
+    showResult(r);
+    renderDash();
+  };
+  area.querySelector("#clearBtn").onclick=()=>{
+    delete store[c.id]; save(store); renderCase(); renderDash();
+  };
+
+  if(saved.submitted){
+    const r=scoreCase(c,covered,saved.neg);
+    showResult(r);
+  }
+  syncNav();
+}
+
+function showResult(r){
+  const el=document.getElementById("result");
+  el.style.display="block";
+  const cls = r.lv>=4?"pass":(r.lv<=2?"low":"");
+  el.innerHTML=`
+    <div class="trustbar-wrap">
+      <div class="trustbar-top"><span>信頼度 trust</span><span>${r.trust} / 100</span></div>
+      <div class="trustbar"><div class="trustfill" id="tf"></div></div>
+    </div>
+    <div class="lv">
+      <div class="lv-chip ${cls}">${r.lv}</div>
+      <div class="lv-text">
+        <b>MILESTONE ${r.stage}</b>
+        <p>${r.note}</p>
+      </div>
+    </div>
+    <div class="lv-next"><b>次に伸ばす一手：</b>${r.next}</div>
+  `;
+  requestAnimationFrame(()=>{ el.querySelector("#tf").style.width=r.trust+"%"; });
+}
+
+function renderDash(){
+  const d=document.getElementById("dash"); d.innerHTML="";
+  let done=0;
+  CASES.forEach(c=>{
+    const s=store[c.id];
+    const cell=document.createElement("div");
+    cell.className="dcell"+(s&&s.submitted?" done":"");
+    if(s&&s.submitted) done++;
+    cell.innerHTML=`<div class="cid">${c.id}</div><div class="dl">${s&&s.submitted?("Lv"+s.lv):"—"}</div>`;
+    cell.onclick=()=>{current=CASES.indexOf(c);renderCase();window.scrollTo({top:0,behavior:"smooth"})};
+    cell.style.cursor="pointer";
+    d.appendChild(cell);
+  });
+  document.getElementById("heroDone").textContent=done+"/5";
+}
+
+document.getElementById("resetAll").onclick=()=>{
+  if(confirm("すべての自己採点結果を消去します。よろしいですか？")){
+    store={}; save(store); renderCase(); renderDash();
+  }
+};
+
+renderCase();
+renderDash();
+</script>
+</body>
+</html>
